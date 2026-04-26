@@ -23,7 +23,6 @@ export function ChartsPage() {
       <h1 className="text-2xl font-bold text-foreground mb-6">Gráficas y Análisis</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Bar Chart */}
         <div className="bg-background border border-border rounded-lg p-6">
           <h3 className="font-semibold text-foreground mb-4">Ventas Mensuales</h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -39,7 +38,6 @@ export function ChartsPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Pie Chart */}
         <div className="bg-background border border-border rounded-lg p-6">
           <h3 className="font-semibold text-foreground mb-4">Distribución por Categoría</h3>
           <ResponsiveContainer width="100%" height={300}>
