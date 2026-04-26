@@ -12,9 +12,9 @@ interface User {
 }
 
 const INITIAL_USERS: User[] = [
-  { id: '1', email: 'admin@system.com', role: 'admin', name: 'Administrador', createdAt: '2024-01-15' },
-  { id: '2', email: 'secretary@system.com', role: 'secretary', name: 'Secretaria', createdAt: '2024-01-16' },
-  { id: '3', email: 'master@system.com', role: 'master', name: 'Master', createdAt: '2024-01-17' },
+  { id: '1', email: 'admin@system.com', role: 'admin', name: 'Administrador', createdAt: '01-02-2026' },
+  { id: '2', email: 'secretary@system.com', role: 'secretary', name: 'Secretaria', createdAt: '01-02-2026' },
+  { id: '3', email: 'master@system.com', role: 'master', name: 'Master', createdAt: '01-02-2026' },
 ]
 
 export function UsersPage() {

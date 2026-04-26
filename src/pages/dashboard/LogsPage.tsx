@@ -10,18 +10,18 @@ interface Log {
 }
 
 const SAMPLE_LOGS: Log[] = [
-  { id: '1', timestamp: '2024-01-20 14:30', user: 'Admin', action: 'Crear Usuario', details: 'secretary@system.com', status: 'Exitoso' },
-  { id: '2', timestamp: '2024-01-20 14:25', user: 'Admin', action: 'Editar Producto', details: 'Producto A', status: 'Exitoso' },
-  { id: '3', timestamp: '2024-01-20 14:20', user: 'Master', action: 'Eliminar Usuario', details: 'user@example.com', status: 'Exitoso' },
-  { id: '4', timestamp: '2024-01-20 14:15', user: 'Secretary', action: 'Consultar', details: 'Productos', status: 'Exitoso' },
-  { id: '5', timestamp: '2024-01-20 14:10', user: 'Admin', action: 'Crear Producto', details: 'Producto Nuevo', status: 'Exitoso' },
-  { id: '6', timestamp: '2024-01-20 14:05', user: 'Master', action: 'Exportar', details: 'Usuarios.xlsx', status: 'Exitoso' },
-  { id: '7', timestamp: '2024-01-20 14:00', user: 'Admin', action: 'Login', details: 'admin@system.com', status: 'Exitoso' },
+  { id: '1', timestamp: '01-02-2026 14:30', user: 'Admin', action: 'Crear Usuario', details: 'secretary@system.com', status: 'Exitoso' },
+  { id: '2', timestamp: '01-02-2026 14:25', user: 'Admin', action: 'Editar Producto', details: 'Producto A', status: 'Exitoso' },
+  { id: '3', timestamp: '01-02-2026 14:20', user: 'Master', action: 'Eliminar Usuario', details: 'user@example.com', status: 'Exitoso' },
+  { id: '4', timestamp: '01-02-2026 14:15', user: 'Secretary', action: 'Consultar', details: 'Productos', status: 'Exitoso' },
+  { id: '5', timestamp: '01-02-2026 14:10', user: 'Admin', action: 'Crear Producto', details: 'Producto Nuevo', status: 'Exitoso' },
+  { id: '6', timestamp: '01-02-2026 14:05', user: 'Master', action: 'Exportar', details: 'Usuarios.xlsx', status: 'Exitoso' },
+  { id: '7', timestamp: '01-02-2026 14:00', user: 'Admin', action: 'Login', details: 'admin@system.com', status: 'Exitoso' },
 ]
 
 export function LogsPage() {
   const columns = [
-    { key: 'timestamp' as const, label: 'Timestamp', sortable: true },
+    { key: 'timestamp' as const, label: 'Fecha', sortable: true },
     { key: 'user' as const, label: 'Usuario', sortable: true },
     { key: 'action' as const, label: 'Acción', sortable: true },
     { key: 'details' as const, label: 'Detalles', sortable: false },

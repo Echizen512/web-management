@@ -11,11 +11,11 @@ interface Query {
 }
 
 const SAMPLE_QUERIES: Query[] = [
-  { id: '1', product: 'Producto A', category: 'Electrónica', price: 100, stock: 50, date: '2024-01-20' },
-  { id: '2', product: 'Producto B', category: 'Hogar', price: 200, stock: 30, date: '2024-01-19' },
-  { id: '3', product: 'Producto C', category: 'Accesorios', price: 75, stock: 100, date: '2024-01-18' },
-  { id: '4', product: 'Producto D', category: 'Electrónica', price: 150, stock: 25, date: '2024-01-17' },
-  { id: '5', product: 'Producto E', category: 'Hogar', price: 120, stock: 60, date: '2024-01-16' },
+  { id: '1', product: 'Producto A', category: 'Electrónica', price: 100, stock: 50, date: '01-02-2026' },
+  { id: '2', product: 'Producto B', category: 'Hogar', price: 200, stock: 30, date: '01-02-2026' },
+  { id: '3', product: 'Producto C', category: 'Accesorios', price: 75, stock: 100, date: '01-02-2026' },
+  { id: '4', product: 'Producto D', category: 'Electrónica', price: 150, stock: 25, date: '01-02-2026' },
+  { id: '5', product: 'Producto E', category: 'Hogar', price: 120, stock: 60, date: '01-02-2026' },
 ]
 
 export function QueriesPage() {
