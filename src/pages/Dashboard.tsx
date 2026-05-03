@@ -26,7 +26,7 @@ export function Dashboard() {
       baseItems.push({ id: 'export', label: 'Exportar', icon: FileText })
     }
 
-    if (user?.role === 'secretary') {
+    if (user?.role === 'empleado') {
       baseItems.push({ id: 'queries', label: 'Consultas', icon: Search })
       baseItems.push({ id: 'export', label: 'Exportar', icon: FileText })
     }
@@ -156,7 +156,7 @@ function HomePage() {
           <h3 className="font-semibold text-foreground mb-2">Perfil: {user?.role}</h3>
           <p className="text-sm text-muted-foreground">
             {user?.role === 'admin' && 'Tienes acceso completo para gestionar usuarios y productos.'}
-            {user?.role === 'secretary' && 'Puedes consultar datos y generar reportes.'}
+            {user?.role === 'empleado' && 'Puedes consultar datos y generar reportes.'}
             {user?.role === 'master' && 'Tienes acceso total incluyendo gráficas y bitácora.'}
           </p>
         </div>

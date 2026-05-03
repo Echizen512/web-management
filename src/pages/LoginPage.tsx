@@ -22,13 +22,14 @@ export function LoginPage() {
 
     try {
       const success = await login(email, password)
+      
       if (success) {
         navigate('/dashboard') 
       } else {
-        setError('Email o contraseña incorrectos')
+        setError('Las credenciales no coinciden con nuestros registros.')
       }
     } catch (err) {
-      setError('Error de conexión con el servidor')
+      setError('No se pudo establecer conexión con Colchones API.')
     } finally {
       setIsLoading(false)
     }
@@ -64,7 +65,7 @@ export function LoginPage() {
               Bienvenido
             </h1>
             <p className="text-muted-foreground mt-2">
-              Ingresa tus credenciales para continuar
+              Gestión Administrativa de Colchones
             </p>
           </div>
 
@@ -77,7 +78,7 @@ export function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nombre@sistema.com"
+                  placeholder="admin@admin.com"
                   className="w-full h-12 pl-12 pr-4 rounded-xl border border-border bg-background/50 focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                   required
                   disabled={isLoading}
@@ -126,7 +127,7 @@ export function LoginPage() {
 
           <div className="mt-8 pt-6 border-t border-border/50 text-center">
             <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium">
-              Aplicación Web • 2026
+              Conexión Segura • {new Date().getFullYear()}
             </p>
           </div>
         </div>
