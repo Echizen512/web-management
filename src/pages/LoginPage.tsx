@@ -9,35 +9,30 @@ import { Button } from '@/components/ui/button'
 export function LoginPage() {
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme() 
+  const { login } = useAuth()
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setIsLoading(true)
 
-    try {
-      const success = await login(email, password)
-      
-      if (success) {
-        navigate('/dashboard') 
-      } else {
-        setError('Las credenciales no coinciden con nuestros registros.')
-      }
-    } catch (err) {
-      setError('No se pudo establecer conexión con Colchones API.')
-    } finally {
+    const result = await login(email, password)
+    
+    if (result.success) {
+      navigate('/dashboard')
+    } else {
+      setError(result.message)
       setIsLoading(false)
     }
   }
 
   return (
     <div className="relative w-full h-screen bg-background overflow-hidden flex items-center justify-center">
-      
       <div className="absolute top-6 right-6 z-20">
         <Button
           variant="outline"
@@ -61,12 +56,8 @@ export function LoginPage() {
             <div className="inline-flex p-4 rounded-2xl bg-primary/10 text-primary">
               <LayoutDashboard size={24} />
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-              Bienvenido
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              Gestión Administrativa de Colchones
-            </p>
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Bienvenido</h1>
+            <p className="text-muted-foreground mt-2">Gestión Administrativa de Colchones</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -78,7 +69,6 @@ export function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@admin.com"
                   className="w-full h-12 pl-12 pr-4 rounded-xl border border-border bg-background/50 focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                   required
                   disabled={isLoading}
@@ -94,7 +84,6 @@ export function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
                   className="w-full h-12 pl-12 pr-4 rounded-xl border border-border bg-background/50 focus:bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                   required
                   disabled={isLoading}
@@ -104,7 +93,7 @@ export function LoginPage() {
 
             {error && (
               <div className="flex items-center gap-3 p-4 bg-destructive/10 border border-destructive/20 rounded-xl animate-in slide-in-from-top-2">
-                <AlertCircle className="text-destructive" size={20} />
+                <AlertCircle className="text-destructive shrink-0" size={20} />
                 <span className="text-sm font-medium text-destructive">{error}</span>
               </div>
             )}
@@ -114,14 +103,7 @@ export function LoginPage() {
               disabled={isLoading}
               className="w-full h-12 rounded-xl text-base font-bold shadow-lg shadow-primary/40 hover:shadow-primary/80 transition-all active:scale-[0.98]"
             >
-              {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Verificando...
-                </span>
-              ) : (
-                'Iniciar Sesión'
-              )}
+              {isLoading ? "Verificando..." : "Iniciar Sesión"}
             </Button>
           </form>
 

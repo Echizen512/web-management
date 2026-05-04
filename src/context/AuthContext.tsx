@@ -9,14 +9,9 @@ export interface User {
   name: string;
 }
 
-interface LoginResponse {
-  access?: Role;
-  message: string;
-}
-
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -39,25 +34,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string) => {
     try {
-      const data = await loginUser({ email, password }) as LoginResponse;
+      const data = await loginUser({ email, password });
 
       if (data.access) {
         const newUser: User = {
           email,
           role: data.access as Role,
-          name: data.message.replace('Bienvenido ', ''),
+          // Extrae el nombre después de "Bienvenido "
+          name: data.message.split(' ').slice(1).join(' ') || 'Usuario',
         };
 
         setUser(newUser);
         localStorage.setItem('currentUser', JSON.stringify(newUser));
-        return true;
+        return { success: true, message: data.message };
       }
-      return false;
-    } catch (error) {
-      console.error('Error durante el login:', error);
-      return false;
+      return { success: false, message: "Respuesta de acceso inválida" };
+    } catch (error: any) {
+      return { success: false, message: error.message || "Error de conexión" };
     }
   };
 
@@ -73,8 +68,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
-}
+};
