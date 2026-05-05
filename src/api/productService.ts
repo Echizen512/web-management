@@ -10,7 +10,6 @@ const JSON_HEADERS = {
   "Content-Type": "application/json",
 };
 
-
 export const getProducts = async () => {
   try {
     const response = await fetch(getUrl("product"), {
@@ -28,7 +27,6 @@ export const getProducts = async () => {
   }
 };
 
-
 export const getProductById = async (productID: string | number) => {
   try {
     const response = await fetch(getUrl(`product/${productID}`), {
@@ -45,7 +43,6 @@ export const getProductById = async (productID: string | number) => {
     throw err;
   }
 };
-
 
 export const createProduct = async (productData: {
   name: string;
@@ -67,6 +64,43 @@ export const createProduct = async (productData: {
     return data;
   } catch (err: any) {
     console.error("API Error (createProduct):", err.message);
+    throw err;
+  }
+};
+
+export const updateProduct = async (productID: number, productData: Record<string, any>) => {
+  try {
+    const response = await fetch(getUrl(`product/${productID}`), {
+      method: "PUT",
+      headers: JSON_HEADERS,
+      body: JSON.stringify(productData),
+      credentials: "include",
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "Error al actualizar producto");
+    
+    return data;
+  } catch (err: any) {
+    console.error("API Error (updateProduct):", err.message);
+    throw err;
+  }
+};
+
+
+export const deleteProduct = async (productID: number) => {
+  try {
+    const response = await fetch(getUrl(`product/${productID}`), {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "Error al eliminar producto");
+    
+    return data;
+  } catch (err: any) {
+    console.error("API Error (deleteProduct):", err.message);
     throw err;
   }
 };
