@@ -23,6 +23,9 @@ const menuItems: Record<Role, { icon: any; label: string; href: string }[]> = {
     { icon: Users, label: 'Usuarios', href: '/dashboard/users' },
     { icon: Package, label: 'Productos', href: '/dashboard/products' },
     { icon: FileText, label: 'Generar Excel', href: '/dashboard/export' },
+    { icon: BarChart3, label: 'Medidas', href: '/dashboard/measures' },
+    { icon: FileText, label: 'Rechazar Productos', href: '/dashboard/reject-products' },
+    { icon: FileText, label: 'Producción Diaria', href: '/dashboard/daily-production' },
   ],
   secretary: [
     { icon: FileText, label: 'Consultas', href: '/dashboard/queries' },
@@ -62,7 +65,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
         )}
       >
         <div className="flex items-center justify-between h-16 px-6 border-b border-border">
-          <h1 className="text-xl font-bold text-foreground">SG</h1>
+          <h1 className="text-xl font-bold text-foreground">Industrial Paraiso C.A</h1>
           <button
             onClick={() => onOpenChange(false)}
             className="lg:hidden p-1 hover:bg-accent rounded-lg transition-colors"
@@ -90,8 +93,8 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
             return (
               <Link
                 key={item.href}
-                to={item.href} // 'to' en lugar de 'href'
-                onClick={() => window.innerWidth < 1024 && onOpenChange(false)} // Cerrar al hacer click en móvil
+                to={item.href}
+                onClick={() => window.innerWidth < 1024 && onOpenChange(false)}
                 className={cn(
                   'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
                   isActive

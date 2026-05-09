@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom' // Cambio: Vite usa React Router
+import { useNavigate } from 'react-router-dom'
 import { AnimatedCanvas } from './AnimatedCanvas'
-import { ThemeToggle } from '@/components/ThemeToggle' // Usamos el switch que creamos
+import { ThemeToggle } from '@/components/ThemeToggle' 
 import { useAuth } from '@/context/AuthContext'
 import { UserRole, DEFAULT_USERS } from 'types/auth'
 import { Button } from '@/components/ui/button'
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 const USERS = Object.values(DEFAULT_USERS).map(({ password, ...user }) => user)
 
 export function LoginPage() {
-  const navigate = useNavigate() // En lugar de useRouter
+  const navigate = useNavigate() 
   const { login } = useAuth()
   const [selectedUser, setSelectedUser] = useState<string | null>(null)
   const [isLoggingIn, setIsLoggingIn] = useState(false)
@@ -39,17 +39,10 @@ export function LoginPage() {
 
   return (
     <div className="fixed inset-0 w-full h-full overflow-hidden bg-background text-foreground transition-colors duration-500">
-      {/* Fondo Animado Optimizado */}
       <AnimatedCanvas />
-      
-      {/* Overlay de gradiente para mejorar legibilidad */}
       <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent pointer-events-none" />
-
-      {/* El Switch de Tema que hicimos antes */}
       <ThemeToggle />
-
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
-        {/* Logo / Título */}
         <div className="mb-12 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="text-7xl mb-4 drop-shadow-2xl">📊</div>
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-2">
@@ -60,7 +53,6 @@ export function LoginPage() {
           </p>
         </div>
 
-        {/* Cartas de Selección de Usuario */}
         <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           {USERS.map((user) => (
             <button
@@ -91,8 +83,6 @@ export function LoginPage() {
             </button>
           ))}
         </div>
-
-        {/* Acción de Entrada */}
         <div className="flex flex-col items-center gap-4">
           <Button
             onClick={handleLogin}

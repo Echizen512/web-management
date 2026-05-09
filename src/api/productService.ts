@@ -1,5 +1,13 @@
 import { API_URL } from "@/utils/constants";
 
+export interface Product {
+  productID: number;
+  name: string;
+  category: string;
+  status: boolean;
+  date: string;
+}
+
 const getUrl = (endpoint: string) => {
   const baseUrl = API_URL.endsWith("/") ? API_URL.slice(0, -1) : API_URL;
   const path = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
@@ -10,7 +18,7 @@ const JSON_HEADERS = {
   "Content-Type": "application/json",
 };
 
-export const getProducts = async () => {
+export const getProducts = async (): Promise<Product[]> => {
   try {
     const response = await fetch(getUrl("product"), {
       method: "GET",
@@ -20,6 +28,7 @@ export const getProducts = async () => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || "Error al obtener productos");
     
+    // Ajustado para devolver la lista de productos
     return data.products || [];
   } catch (err: any) {
     console.error("API Error (getProducts):", err.message);
@@ -27,7 +36,7 @@ export const getProducts = async () => {
   }
 };
 
-export const getProductById = async (productID: string | number) => {
+export const getProductById = async (productID: string | number): Promise<Product> => {
   try {
     const response = await fetch(getUrl(`product/${productID}`), {
       method: "GET",
@@ -44,12 +53,7 @@ export const getProductById = async (productID: string | number) => {
   }
 };
 
-export const createProduct = async (productData: {
-  name: string;
-  type: string;
-  price: number;
-  stock: number;
-}) => {
+export const createProduct = async (productData: Omit<Product, "productID">) => {
   try {
     const response = await fetch(getUrl("product"), {
       method: "POST",
@@ -68,10 +72,10 @@ export const createProduct = async (productData: {
   }
 };
 
-export const updateProduct = async (productID: number, productData: Record<string, any>) => {
+export const updateProduct = async (productID: number, productData: Partial<Product>) => {
   try {
     const response = await fetch(getUrl(`product/${productID}`), {
-      method: "PUT",
+      method: "PUT", // Manteniendo PUT según tu lógica original
       headers: JSON_HEADERS,
       body: JSON.stringify(productData),
       credentials: "include",
@@ -86,7 +90,6 @@ export const updateProduct = async (productID: number, productData: Record<strin
     throw err;
   }
 };
-
 
 export const deleteProduct = async (productID: number) => {
   try {

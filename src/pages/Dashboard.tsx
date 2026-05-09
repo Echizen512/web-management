@@ -8,6 +8,10 @@ import { ExportPage } from './dashboard/ExportPage'
 import { QueriesPage } from './dashboard/QueriesPage'
 import { ChartsPage } from './dashboard/ChartsPage'
 import { LogsPage } from './dashboard/LogsPage'
+import { MeasuresPage } from './dashboard/MeasurePage'
+import { RejectProductsPage } from './dashboard/RejectProdutsPage'
+import { DailyProduction } from '@/api/dailyProductionService'
+import { DailyProductionPage } from './dashboard/DailyProductionPage'
 
 export function Dashboard() {
   const { user, logout } = useAuth()
@@ -22,7 +26,10 @@ export function Dashboard() {
 
     if (user?.role === 'admin' || user?.role === 'master') {
       baseItems.push({ id: 'users', label: 'Usuarios', icon: Users })
+      baseItems.push({ id: 'measures', label: 'Medidas', icon: BarChart3 })
       baseItems.push({ id: 'products', label: 'Productos', icon: Package })
+      baseItems.push({ id: 'daily-production', label: 'Producción Diaria', icon: FileText })
+      baseItems.push({ id: 'reject-products', label: 'Rechazar Productos', icon: FileText })
       baseItems.push({ id: 'export', label: 'Exportar', icon: FileText })
     }
 
@@ -34,6 +41,7 @@ export function Dashboard() {
     if (user?.role === 'master') {
       baseItems.push({ id: 'charts', label: 'Gráficas', icon: BarChart3 })
       baseItems.push({ id: 'logs', label: 'Bitácora', icon: Layers })
+      baseItems.push({ id: 'measures', label: 'Medidas', icon: BarChart3 })
     }
 
     return baseItems
@@ -53,6 +61,12 @@ export function Dashboard() {
         return <ChartsPage />
       case 'logs':
         return <LogsPage />
+      case 'measures':
+        return <MeasuresPage />
+      case 'reject-products':
+        return <RejectProductsPage />
+      case 'daily-production':
+        return <DailyProductionPage />
       default:
         return <HomePage />
     }
@@ -63,12 +77,11 @@ export function Dashboard() {
   return (
     <div className="flex h-screen bg-background">
       <aside
-        className={`${
-          sidebarOpen ? 'w-64' : 'w-0'
-        } transition-all duration-300 border-r border-border overflow-hidden flex flex-col bg-background`}
+        className={`${sidebarOpen ? 'w-64' : 'w-0'
+          } transition-all duration-300 border-r border-border overflow-hidden flex flex-col bg-background`}
       >
         <div className="p-6 border-b border-border">
-          <h1 className="text-lg font-bold text-foreground">SG</h1>
+          <h1 className="text-lg font-bold text-foreground">Industrial Paraiso C.A</h1>
         </div>
 
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -76,11 +89,10 @@ export function Dashboard() {
             <button
               key={item.id}
               onClick={() => setCurrentPage(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
-                currentPage === item.id
+              className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${currentPage === item.id
                   ? 'bg-accent text-accent-foreground'
                   : 'text-foreground hover:bg-muted'
-              }`}
+                }`}
             >
               <item.icon size={20} />
               <span>{item.label}</span>
