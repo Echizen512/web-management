@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
-import { LogOut, Menu, X, Moon, Sun, LayoutDashboard, Users, Package, FileText, BarChart3, Layers, Search } from 'lucide-react'
+import { LogOut, Menu, X, Moon, Sun, LayoutDashboard, Users, Package, Download, FileText, BarChart3, Layers, Search, Ban } from 'lucide-react'
 import { UsersPage } from './dashboard/UsersPage'
 import { ProductsPage } from './dashboard/ProductsPage'
 import { ExportPage } from './dashboard/ExportPage'
@@ -10,7 +10,6 @@ import { ChartsPage } from './dashboard/ChartsPage'
 import { LogsPage } from './dashboard/LogsPage'
 import { MeasuresPage } from './dashboard/MeasurePage'
 import { RejectProductsPage } from './dashboard/RejectProdutsPage'
-import { DailyProduction } from '@/api/dailyProductionService'
 import { DailyProductionPage } from './dashboard/DailyProductionPage'
 
 export function Dashboard() {
@@ -29,19 +28,22 @@ export function Dashboard() {
       baseItems.push({ id: 'measures', label: 'Medidas', icon: BarChart3 })
       baseItems.push({ id: 'products', label: 'Productos', icon: Package })
       baseItems.push({ id: 'daily-production', label: 'Producción Diaria', icon: FileText })
-      baseItems.push({ id: 'reject-products', label: 'Rechazar Productos', icon: FileText })
-      baseItems.push({ id: 'export', label: 'Exportar', icon: FileText })
+      baseItems.push({ id: 'reject-products', label: 'Rechazar Productos', icon: Ban })
+      baseItems.push({ id: 'export', label: 'Exportar', icon: Download })
     }
 
     if (user?.role === 'empleado') {
       baseItems.push({ id: 'queries', label: 'Consultas', icon: Search })
-      baseItems.push({ id: 'export', label: 'Exportar', icon: FileText })
+      baseItems.push({ id: 'export', label: 'Exportar', icon: Download })
     }
 
     if (user?.role === 'master') {
-      baseItems.push({ id: 'charts', label: 'Gráficas', icon: BarChart3 })
-      baseItems.push({ id: 'logs', label: 'Bitácora', icon: Layers })
+      baseItems.push({ id: 'users', label: 'Usuarios', icon: Users })
       baseItems.push({ id: 'measures', label: 'Medidas', icon: BarChart3 })
+      baseItems.push({ id: 'products', label: 'Productos', icon: Package })
+      baseItems.push({ id: 'daily-production', label: 'Producción Diaria', icon: FileText })
+      baseItems.push({ id: 'reject-products', label: 'Rechazar Productos', icon: Ban })
+      baseItems.push({ id: 'export', label: 'Exportar', icon: Download })
     }
 
     return baseItems

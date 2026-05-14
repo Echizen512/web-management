@@ -5,6 +5,7 @@ import { useTheme } from '@/context/ThemeContext'
 import { AnimatedCanvas } from '@/components/AnimatedCanvas'
 import { Mail, Lock, AlertCircle, LayoutDashboard, Sun, Moon } from 'lucide-react' 
 import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -16,20 +17,31 @@ export function LoginPage() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setIsLoading(true)
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
 
+  setIsLoading(true)
+
+  try {
     const result = await login(email, password)
-    
+
     if (result.success) {
-      navigate('/dashboard')
+      toast.success("Inicio de sesión exitoso 👋")
+      
+      setTimeout(() => {
+        navigate('/dashboard')
+      }, 300)
+
     } else {
-      setError(result.message)
-      setIsLoading(false)
+      toast.error(result.message || "Credenciales incorrectas")
     }
+
+  } catch (error: any) {
+    toast.error("Error inesperado al iniciar sesión")
+  } finally {
+    setIsLoading(false)
   }
+}
 
   return (
     <div className="relative w-full h-screen bg-background overflow-hidden flex items-center justify-center">
@@ -54,10 +66,10 @@ export function LoginPage() {
           
           <div className="text-center mb-2">
             <div className="inline-flex p-4 rounded-2xl bg-primary/10 text-primary">
-              <LayoutDashboard size={24} />
+              <img src="/logo.png" alt="Logo" className="w-16 h-16" />
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Bienvenido</h1>
-            <p className="text-muted-foreground mt-2">Gestión Administrativa de Colchones</p>
+            <p className="text-muted-foreground mt-2">Gestión Administrativa de Paradise</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">

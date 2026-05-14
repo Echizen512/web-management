@@ -202,10 +202,17 @@ export const generateProductionReport = async (
         const sem = weekProduction
           .filter((wp) => wp.productID === prod.productID)
           .reduce((acc, curr) => acc + curr.quantity, 0);
+        const mes = monthProduction
+          .filter((mp) => mp.productID === prod.productID)
+          .reduce((acc, curr) => acc + curr.quantity, 0);
 
         row.getCell(colAcumSem).value = sem > 0 ? sem : "";
-        row.getCell(colAcumSem).border = borderStyle;
-        row.getCell(colAcumSem).alignment = centerAlignment;
+        row.getCell(colAcumMes).border = borderStyle;
+        row.getCell(colAcumMes).alignment = centerAlignment;
+        
+        row.getCell(colAcumMes).value = mes > 0 ? mes : "";
+        row.getCell(colAcumMes).border = borderStyle;
+        row.getCell(colAcumMes).alignment = centerAlignment;
 
         row.getCell(colAcumMes).border = borderStyle;
         currentRow++;
@@ -222,6 +229,18 @@ export const generateProductionReport = async (
       });
 
       subRow.getCell(colTotal).value = totalCatDia;
+
+      const totalSemCat = weekProduction
+        .filter((wp) => productsInCat.some((p) => p.productID === wp.productID))
+        .reduce((acc, curr) => acc + curr.quantity, 0);
+
+      const totalMesCat = monthProduction
+        .filter((mp) => productsInCat.some((p) => p.productID === mp.productID))
+        .reduce((acc, curr) => acc + curr.quantity, 0);
+
+      subRow.getCell(colAcumSem).value = totalSemCat > 0 ? totalSemCat : "";
+
+      subRow.getCell(colAcumMes).value = totalMesCat > 0 ? totalMesCat : "";
 
       subTotalesCat[cat] = totalCatDia;
 
@@ -252,6 +271,16 @@ export const generateProductionReport = async (
 
       currentRow += 2;
     });
+
+    const granTotalSemanal = weekProduction.reduce(
+      (acc, curr) => acc + curr.quantity,
+      0,
+    );
+
+    const granTotalMensual = monthProduction.reduce(
+      (acc, curr) => acc + curr.quantity,
+      0,
+    );
 
     const buildSummary = (start: number) => {
       const labels = ["Totales por medidas", "% de Medidas", "Base 1.40"];
@@ -291,7 +320,7 @@ export const generateProductionReport = async (
         fgColor: { argb: "FF4F81BD" },
       };
 
-      const labels = ["Horario Normal", "Sub-Total", "TOTAL"];
+      const labels = ["Horario Normal", "TOTAL"];
       labels.forEach((label, idx) => {
         const row = worksheet.getRow(start + 1 + idx);
         worksheet.mergeCells(row.number, 1, row.number, 2);
@@ -311,7 +340,7 @@ export const generateProductionReport = async (
           c.alignment = ALIGN_CENTER;
         });
       });
-      return start + 6;
+      return start + 4;
     };
 
     currentRow = buildControl(currentRow, false);

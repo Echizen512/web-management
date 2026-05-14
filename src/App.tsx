@@ -4,6 +4,7 @@ import { LoginPage } from './pages/LoginPage'
 import { Dashboard } from './pages/Dashboard'
 import { ThemeProvider } from './context/ThemeContext'
 
+
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
 

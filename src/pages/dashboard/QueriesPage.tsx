@@ -1,5 +1,6 @@
 import { DataTable } from '@/components/DataTable'
 import { Download } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface Query {
   id: string
@@ -28,7 +29,7 @@ export function QueriesPage() {
   ]
 
   const handleExport = () => {
-    alert('Exportar a Excel - Próximamente')
+    toast.success('Exportar a Excel - Próximamente')
   }
 
   return (
