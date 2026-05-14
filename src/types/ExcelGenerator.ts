@@ -207,9 +207,9 @@ export const generateProductionReport = async (
           .reduce((acc, curr) => acc + curr.quantity, 0);
 
         row.getCell(colAcumSem).value = sem > 0 ? sem : "";
-        row.getCell(colAcumMes).border = borderStyle;
-        row.getCell(colAcumMes).alignment = centerAlignment;
-        
+        row.getCell(colAcumSem).border = borderStyle;
+        row.getCell(colAcumSem).alignment = centerAlignment;
+
         row.getCell(colAcumMes).value = mes > 0 ? mes : "";
         row.getCell(colAcumMes).border = borderStyle;
         row.getCell(colAcumMes).alignment = centerAlignment;
