@@ -151,7 +151,7 @@ export const generateProductionReport = async (
     headRow.getCell(colAcumAnual).value = "Acum. Año";
     headRow.eachCell((c) => {
       c.font = boldFont;
-      lignment = ALIGN_CENTER;
+      c.alignment = ALIGN_CENTER;
       c.border = borderStyle;
     });
 
@@ -307,8 +307,6 @@ export const generateProductionReport = async (
         cell.alignment = centerAlignment;
       }
 
-      
-
       worksheet.mergeCells(startRow, 1, currentRow, 1);
       const catCell = worksheet.getCell(startRow, 1);
       catCell.value = cat;
@@ -355,7 +353,7 @@ export const generateProductionReport = async (
         row.eachCell((c) => {
           c.font = boldFont;
           c.border = borderStyle;
-          lignment = ALIGN_CENTER;
+          c.alignment = ALIGN_CENTER;
         });
       });
       return start + 4;
@@ -364,7 +362,7 @@ export const generateProductionReport = async (
     currentRow = buildSummary(currentRow);
 
     const buildControl = (start: number, isBase140: boolean) => {
-      worksheet.mergeCells(start, 1, start, colAcumMes);
+      worksheet.mergeCells(start, 1, start, colAcumAnual);
       worksheet.getCell(start, 1).fill = {
         type: "pattern",
         pattern: "solid",
@@ -388,7 +386,7 @@ export const generateProductionReport = async (
         row.eachCell((c) => {
           c.font = boldFont;
           c.border = borderStyle;
-          lignment = ALIGN_CENTER;
+          c.alignment = ALIGN_CENTER;
         });
       });
       return start + 4;
@@ -397,7 +395,7 @@ export const generateProductionReport = async (
     currentRow = buildControl(currentRow, false);
     currentRow = buildControl(currentRow, true);
 
-    worksheet.mergeCells(currentRow, 1, currentRow, 10);
+    worksheet.mergeCells(currentRow, 1, currentRow, 12);
     const resCell = worksheet.getCell(currentRow, 1);
     resCell.value = "C O L C H O N E S  D E  R E S O R T E";
     resCell.fill = {
