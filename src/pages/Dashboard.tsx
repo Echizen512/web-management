@@ -82,8 +82,8 @@ export function Dashboard() {
         className={`${sidebarOpen ? 'w-64' : 'w-0'
           } transition-all duration-300 border-r border-border overflow-hidden flex flex-col bg-background`}
       >
-        <div className="p-6 border-b border-border">
-          <h1 className="text-lg font-bold text-foreground">Industrial Paraiso C.A</h1>
+        <div className="p-6 border-b border-border flex justify-center items-center">
+          <img src="/logo.png" alt="Logo" className="h-14 w-auto" />
         </div>
 
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -92,8 +92,8 @@ export function Dashboard() {
               key={item.id}
               onClick={() => setCurrentPage(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${currentPage === item.id
-                  ? 'bg-accent text-accent-foreground'
-                  : 'text-foreground hover:bg-muted'
+                ? 'bg-accent text-accent-foreground'
+                : 'text-foreground hover:bg-muted'
                 }`}
             >
               <item.icon size={20} />

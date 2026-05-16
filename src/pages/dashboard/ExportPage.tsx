@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+
 import {
   FileText,
   Download,
@@ -15,6 +16,7 @@ import { getProducts } from "@/api/productService";
 import { getMeasures } from "@/api/measureService";
 import { getDailyProduction } from "@/api/dailyProductionService";
 import { getRejectProducts } from "@/api/rejectProductService";
+
 
 import { generateProductionReport } from "@/types/ExcelGenerator";
 
@@ -42,17 +44,27 @@ export function ExportPage() {
       const dayOfWeek = current.getDay();
 
       const diff =
-        current.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+        current.getDate() -
+        dayOfWeek +
+        (dayOfWeek === 0 ? -6 : 1);
 
-      const monday = new Date(new Date(current).setDate(diff));
-
-      const sunday = new Date(
-        new Date(monday).setDate(monday.getDate() + 6)
+      const monday = new Date(
+        new Date(current).setDate(diff)
       );
 
-      const startDateStr = monday.toISOString().split("T")[0];
+      const sunday = new Date(
+        new Date(monday).setDate(
+          monday.getDate() + 6
+        )
+      );
 
-      const endDateStr = sunday.toISOString().split("T")[0];
+      const startDateStr = monday
+        .toISOString()
+        .split("T")[0];
+
+      const endDateStr = sunday
+        .toISOString()
+        .split("T")[0];
 
       // =========================================================
       // RANGO MENSUAL
@@ -70,9 +82,37 @@ export function ExportPage() {
         0
       );
 
-      const monthStartStr = firstDayMonth.toISOString().split("T")[0];
+      const monthStartStr = firstDayMonth
+        .toISOString()
+        .split("T")[0];
 
-      const monthEndStr = lastDayMonth.toISOString().split("T")[0];
+      const monthEndStr = lastDayMonth
+        .toISOString()
+        .split("T")[0];
+
+      // =========================================================
+      // RANGO ANUAL
+      // =========================================================
+
+      const firstDayYear = new Date(
+        current.getFullYear(),
+        0,
+        1
+      );
+
+      const lastDayYear = new Date(
+        current.getFullYear(),
+        11,
+        31
+      );
+
+      const yearStartStr = firstDayYear
+        .toISOString()
+        .split("T")[0];
+
+      const yearEndStr = lastDayYear
+        .toISOString()
+        .split("T")[0];
 
       // =========================================================
       // CONSULTAS
@@ -81,32 +121,86 @@ export function ExportPage() {
       const [
         products,
         measures,
+
+        // PRODUCCION
         dayData,
         weekData,
         monthData,
+        yearData,
+
+        // RECHAZOS
         dayReject,
         weekReject,
+
+        // OBSERVACIONES
       ] = await Promise.all([
+        // PRODUCTOS
         getProducts(),
 
+        // MEDIDAS
         getMeasures(),
 
-        // DIA
-        getDailyProduction(selectedDate, selectedDate),
+        // PRODUCCION DIA
+        getDailyProduction(
+          selectedDate,
+          selectedDate
+        ),
 
-        // SEMANA
-        getDailyProduction(startDateStr, endDateStr),
+        // PRODUCCION SEMANA
+        getDailyProduction(
+          startDateStr,
+          endDateStr
+        ),
 
-        // MES
-        getDailyProduction(monthStartStr, monthEndStr),
+        // PRODUCCION MES
+        getDailyProduction(
+          monthStartStr,
+          monthEndStr
+        ),
+
+        // PRODUCCION AÑO
+        getDailyProduction(
+          yearStartStr,
+          yearEndStr
+        ),
 
         // RECHAZOS DIA
-        getRejectProducts(selectedDate, selectedDate),
+        getRejectProducts(
+          selectedDate,
+          selectedDate
+        ),
 
         // RECHAZOS SEMANA
-        getRejectProducts(startDateStr, endDateStr),
+        getRejectProducts(
+          startDateStr,
+          endDateStr
+        ),
+
+        // OBSERVACIONE
       ]);
 
+      // =========================================================
+      // OBSERVACIONES
+      // =========================================================
+
+      // =========================================================
+      // OBSERVACIONES
+      // =========================================================
+
+      let observations = "";
+
+      if (Array.isArray(dayData?.data)) {
+        observations = dayData.data
+          .map(
+            (item: any) =>
+              item.observation ||
+              item.observations ||
+              item.description ||
+              ""
+          )
+          .filter(Boolean)
+          .join("\n");
+      }
       // =========================================================
       // DATA PARA EL EXCEL
       // =========================================================
@@ -115,24 +209,29 @@ export function ExportPage() {
         {
           targetDate: selectedDate,
 
-          // DIA
-          dayProduction: dayData?.data || [],
+          // PRODUCCION DIA
+          dayProduction:
+            dayData?.data || [],
 
-          // SEMANA
-          weekProduction: weekData?.data || [],
+          // PRODUCCION SEMANA
+          weekProduction:
+            weekData?.data || [],
 
-          // MES
-          monthProduction: monthData?.data || [],
+          monthProduction:
+            monthData?.data || [],
 
-          // RECHAZOS
-          dayRejects: dayReject || [],
-          weekRejects: weekReject || [],
+          yearProduction:
+            yearData?.data || [],
+
+          dayRejects:
+            dayReject || [],
+
+          weekRejects:
+            weekReject || [],
+
+          observations,
         },
       ];
-
-      // =========================================================
-      // GENERAR EXCEL
-      // =========================================================
 
       await generateProductionReport(
         products,
@@ -148,7 +247,8 @@ export function ExportPage() {
 
       toast.error(
         "Error al generar el reporte: " +
-          (error.message || "Error desconocido")
+        (error.message ||
+          "Error desconocido")
       );
     } finally {
       setIsExporting(false);
@@ -182,7 +282,9 @@ export function ExportPage() {
               type="date"
               value={selectedDate}
               onChange={(e) =>
-                setSelectedDate(e.target.value)
+                setSelectedDate(
+                  e.target.value
+                )
               }
               className="block w-full bg-transparent text-xl font-bold focus:outline-none cursor-pointer"
             />
@@ -226,11 +328,13 @@ export function ExportPage() {
 
           <p className="text-slate-500 text-sm font-medium mb-8 leading-relaxed">
             Genera la hoja de balance detallada por categorías con acumulados
-            semanales y mensuales.
+            semanales, mensuales y anuales.
           </p>
 
           <Button
-            onClick={handleExportProduction}
+            onClick={
+              handleExportProduction
+            }
             disabled={isExporting}
             className="w-full h-14 rounded-2xl bg-slate-900 hover:bg-blue-600 text-white font-black uppercase text-xs tracking-widest gap-3 shadow-lg transition-all active:scale-95"
           >

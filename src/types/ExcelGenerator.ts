@@ -18,7 +18,16 @@ interface DayData {
   monthProduction: any[];
   dayRejects: any[];
   weekRejects: any[];
+  yearProduction: any[];
+  observations?: string;
 }
+
+const isDateLessOrEqual = (recordDate: string, targetDate: string) => {
+  return (
+    new Date(recordDate.split("T")[0]).getTime() <=
+    new Date(targetDate.split("T")[0]).getTime()
+  );
+};
 
 export const generateProductionReport = async (
   products: any[],
@@ -28,7 +37,14 @@ export const generateProductionReport = async (
   const workbook = new ExcelJS.Workbook();
 
   for (const day of dataByDay) {
-    const { targetDate, dayProduction, weekProduction, monthProduction } = day;
+    const {
+      targetDate,
+      dayProduction,
+      weekProduction,
+      monthProduction,
+      yearProduction,
+      observations,
+    } = day;
     const exactTargetDate = targetDate.split("T")[0];
     const strictDayProduction = dayProduction.filter((dp) => {
       const recordDate = dp.date || dp.createdAt;
@@ -43,11 +59,12 @@ export const generateProductionReport = async (
     const colTipo = colTotal + 1;
     const colAcumSem = colTotal + 2;
     const colAcumMes = colTotal + 3;
+    const colAcumAnual = colTotal + 4;
 
     worksheet.getColumn(1).width = 8;
     worksheet.getColumn(2).width = 40;
     measures.forEach((_, i) => (worksheet.getColumn(3 + i).width = 11));
-    [colTotal, colTipo, colAcumSem, colAcumMes].forEach(
+    [colTotal, colTipo, colAcumSem, colAcumMes, colAcumAnual].forEach(
       (c) => (worksheet.getColumn(c).width = 14),
     );
 
@@ -95,7 +112,7 @@ export const generateProductionReport = async (
     };
 
     worksheet.mergeCells("A1:D1");
-    worksheet.getCell("A1").value = "INDUSTRIAL PARAÍSO C.A.";
+    worksheet.getCell("A1").value = "INDUSTRIAL PARAÍSO .";
     worksheet.getCell("A1").font = { ...boldFont, size: 14 };
 
     worksheet.mergeCells("A2:D2");
@@ -113,7 +130,7 @@ export const generateProductionReport = async (
     worksheet.getCell("G2").font = boldFont;
 
     // --- TABLA PRINCIPAL ---
-    worksheet.mergeCells(5, 1, 5, colAcumMes);
+    worksheet.mergeCells(5, 1, 5, colAcumAnual);
     const hCell = worksheet.getCell(5, 1);
     hCell.value = "H O R A R I O   N O R M A L";
     hCell.fill = {
@@ -131,9 +148,10 @@ export const generateProductionReport = async (
     headRow.getCell(colTipo).value = "Tipo (%)";
     headRow.getCell(colAcumSem).value = "Acum. Sem";
     headRow.getCell(colAcumMes).value = "Acum. Mes";
+    headRow.getCell(colAcumAnual).value = "Acum. Año";
     headRow.eachCell((c) => {
       c.font = boldFont;
-      c.alignment = ALIGN_CENTER;
+      lignment = ALIGN_CENTER;
       c.border = borderStyle;
     });
 
@@ -200,11 +218,31 @@ export const generateProductionReport = async (
         row.getCell(colTipo).border = borderStyle;
 
         const sem = weekProduction
-          .filter((wp) => wp.productID === prod.productID)
+          .filter(
+            (wp) =>
+              wp.productID === prod.productID &&
+              isDateLessOrEqual(wp.date || wp.createdAt, targetDate),
+          )
           .reduce((acc, curr) => acc + curr.quantity, 0);
+          
         const mes = monthProduction
-          .filter((mp) => mp.productID === prod.productID)
+          .filter(
+            (mp) =>
+              mp.productID === prod.productID &&
+              isDateLessOrEqual(mp.date || mp.createdAt, targetDate),
+          )
           .reduce((acc, curr) => acc + curr.quantity, 0);
+
+        const anual = yearProduction
+          .filter(
+            (yp: any) =>
+              yp.productID === prod.productID &&
+              isDateLessOrEqual(yp.date || yp.createdAt, targetDate),
+          )
+          .reduce(
+            (acc: number, curr: any) => acc + Number(curr.quantity || 0),
+            0,
+          );
 
         row.getCell(colAcumSem).value = sem > 0 ? sem : "";
         row.getCell(colAcumSem).border = borderStyle;
@@ -214,7 +252,10 @@ export const generateProductionReport = async (
         row.getCell(colAcumMes).border = borderStyle;
         row.getCell(colAcumMes).alignment = centerAlignment;
 
-        row.getCell(colAcumMes).border = borderStyle;
+        row.getCell(colAcumAnual).value = anual > 0 ? anual : "";
+        row.getCell(colAcumAnual).border = borderStyle;
+        row.getCell(colAcumAnual).alignment = centerAlignment;
+
         currentRow++;
       });
 
@@ -238,9 +279,17 @@ export const generateProductionReport = async (
         .filter((mp) => productsInCat.some((p) => p.productID === mp.productID))
         .reduce((acc, curr) => acc + curr.quantity, 0);
 
+      const totalAnualCat = yearProduction
+        .filter((yp: any) =>
+          productsInCat.some((p) => p.productID === yp.productID),
+        )
+        .reduce((acc: number, curr: any) => acc + Number(curr.quantity || 0), 0);
+
       subRow.getCell(colAcumSem).value = totalSemCat > 0 ? totalSemCat : "";
 
       subRow.getCell(colAcumMes).value = totalMesCat > 0 ? totalMesCat : "";
+
+      subRow.getCell(colAcumAnual).value = totalAnualCat > 0 ? totalAnualCat : "";
 
       subTotalesCat[cat] = totalCatDia;
 
@@ -250,13 +299,15 @@ export const generateProductionReport = async (
         pSubCell.numFmt = "0.00%";
       }
 
-      for (let i = 2; i <= colAcumMes; i++) {
+      for (let i = 2; i <= colAcumAnual; i++) {
         const cell = subRow.getCell(i);
         cell.fill = yellowFill;
         cell.border = borderStyle;
         cell.font = boldFont;
         cell.alignment = centerAlignment;
       }
+
+      
 
       worksheet.mergeCells(startRow, 1, currentRow, 1);
       const catCell = worksheet.getCell(startRow, 1);
@@ -304,7 +355,7 @@ export const generateProductionReport = async (
         row.eachCell((c) => {
           c.font = boldFont;
           c.border = borderStyle;
-          c.alignment = ALIGN_CENTER;
+          lignment = ALIGN_CENTER;
         });
       });
       return start + 4;
@@ -337,7 +388,7 @@ export const generateProductionReport = async (
         row.eachCell((c) => {
           c.font = boldFont;
           c.border = borderStyle;
-          c.alignment = ALIGN_CENTER;
+          lignment = ALIGN_CENTER;
         });
       });
       return start + 4;
@@ -348,8 +399,7 @@ export const generateProductionReport = async (
 
     worksheet.mergeCells(currentRow, 1, currentRow, 10);
     const resCell = worksheet.getCell(currentRow, 1);
-    resCell.value = "Colchones de Resortes";
-
+    resCell.value = "C O L C H O N E S  D E  R E S O R T E";
     resCell.fill = {
       type: "pattern",
       pattern: "solid",
@@ -358,8 +408,8 @@ export const generateProductionReport = async (
 
     resCell.font = {
       name: "Arial",
-      size: 11,
-      color: { argb: "00000000" },
+      size: 9,
+      color: { argb: "FFFFFF" },
       bold: true,
     };
 
@@ -414,10 +464,16 @@ export const generateProductionReport = async (
 
     worksheet.mergeCells(currentRow, 3, currentRow + 3, 7);
     const obsArea = worksheet.getCell(currentRow, 3);
+    obsArea.value = day.observations || "";
     obsArea.fill = {
       type: "pattern",
       pattern: "solid",
       fgColor: { argb: "FFEBF1DE" },
+    };
+    obsArea.alignment = {
+      vertical: "top",
+      horizontal: "left",
+      wrapText: true,
     };
     obsArea.border = borderStyle;
 

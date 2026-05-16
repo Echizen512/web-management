@@ -42,20 +42,16 @@ export function DailyProductionPage() {
         useState<"Normal" | "Sobretiempo">("Normal")
 
     const [observation, setObservation] = useState("")
-
     const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false)
 
     const [dailyHistory, setDailyHistory] =
         useState<DailyProduction[]>([])
 
     const [searchHistory, setSearchHistory] = useState('')
-
     const fetchData = async (showToast = false) => {
 
         try {
-
             setIsLoading(true)
-
             const loadingToast = showToast
                 ? toast.loading('Actualizando información...')
                 : null
@@ -67,26 +63,19 @@ export function DailyProductionPage() {
 
             setProducts(prods.filter((p) => p.status))
             setMeasures(meas)
-
             const hoy = new Date().toISOString().split('T')[0]
-
             const history = await getDailyProduction(hoy, hoy)
 
             setDailyHistory(history.data)
-
             if (loadingToast) {
-
                 toast.dismiss(loadingToast)
-
                 toast.success('Datos actualizados', {
                     description: 'La matriz de producción fue sincronizada correctamente.'
                 })
             }
 
         } catch (error: any) {
-
             console.error("Error cargando datos:", error)
-
             toast.error("Error cargando datos", {
                 description: error?.message || 'No fue posible consultar la información.'
             })
@@ -108,7 +97,6 @@ export function DailyProductionPage() {
     ) => {
 
         const val = parseInt(value) || 0
-
         setMatrix(prev => ({
             ...prev,
             [`${productId}-${measureId}`]: val
@@ -116,24 +104,18 @@ export function DailyProductionPage() {
     }
 
     const handleSubmit = async () => {
-
         const entries =
             Object.entries(matrix)
                 .filter(([_, qty]) => qty > 0)
-
         if (entries.length === 0) {
-
             toast.warning('Sin cantidades registradas', {
                 description: 'Debes ingresar al menos una cantidad mayor a 0.'
             })
-
             return
         }
 
         try {
-
             setIsSubmitting(true)
-
             const savingToast = toast.loading(
                 'Guardando producción...',
                 {
@@ -142,12 +124,9 @@ export function DailyProductionPage() {
             )
 
             const date = new Date().toISOString()
-
             const promises = entries.map(([key, quantity]) => {
-
                 const [productID, measureID] =
                     key.split('-').map(Number)
-
                 return createDailyProduction({
                     productID,
                     measureID,
@@ -157,60 +136,42 @@ export function DailyProductionPage() {
                     date
                 })
             })
-
             await Promise.all(promises)
-
             toast.dismiss(savingToast)
-
             toast.success('Producción registrada', {
                 description: `${entries.length} registros fueron almacenados correctamente.`
             })
-
             setMatrix({})
             setObservation("")
-
             await fetchData()
-
         } catch (error: any) {
-
             toast.error("Error al guardar producción", {
                 description: error?.message || 'Ocurrió un error inesperado.'
             })
-
         } finally {
-
             setIsSubmitting(false)
         }
     }
 
     const filteredHistory = useMemo(() => {
-
         return dailyHistory.filter((item) => {
-
             const prodName =
                 products.find(p => p.productID === item.productID)?.name || ""
-
             const measName =
                 measures.find(m => m.measureID === item.measureID)?.name || ""
-
             const typeLabel =
                 item.type_schedule?.toUpperCase() === 'MAÑANA'
                     ? 'NORMAL'
                     : item.type_schedule
-
             const search =
                 `${prodName} ${measName} ${typeLabel}`
                     .toLowerCase()
-
             return search.includes(searchHistory.toLowerCase())
         })
-
     }, [dailyHistory, searchHistory, products, measures])
 
     return (
-
         <div className="p-6 max-w-7xl mx-auto animate-in fade-in duration-500">
-            {/* HEADER */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-4xl font-black tracking-tight flex items-center gap-3 text-foreground">

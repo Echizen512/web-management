@@ -65,7 +65,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
         )}
       >
         <div className="flex items-center justify-between h-16 px-6 border-b border-border">
-          <h1 className="text-xl font-bold text-foreground">Industrial Paraiso C.A</h1>
+          <img src="/logo.png" alt="Logo" className="h-8 w-auto" />
           <button
             onClick={() => onOpenChange(false)}
             className="lg:hidden p-1 hover:bg-accent rounded-lg transition-colors"
