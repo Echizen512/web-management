@@ -22,6 +22,47 @@ interface DayData {
   observations?: string;
 }
 
+const getMeasureEquivalent140 = (
+  measureName: string,
+): number => {
+  const normalized = measureName
+    .toLowerCase()
+    .replace(/\s/g, "")
+    .replace(/,/g, ".");
+
+  const aliases: Record<string, number> = {
+    "1": 0.71,
+    "1.0": 0.71,
+    "1.00": 0.71,
+
+    "1.4": 1,
+    "1.40": 1,
+
+    "1.6": 1.142,
+    "1.60": 1.142,
+
+    "2.42": 1.92,
+
+    "2x2": 2.04,
+    "2.0x2.0": 2.04,
+
+    "1.90x1.2": 1.63,
+    "1.90x1.20": 1.63,
+  };
+
+  if (aliases[normalized] !== undefined) {
+    return aliases[normalized];
+  }
+
+  const numeric = Number(normalized);
+
+  if (!isNaN(numeric)) {
+    return Number((numeric / 1.4).toFixed(3));
+  }
+
+  return 1;
+};
+
 const isDateLessOrEqual = (recordDate: string, targetDate: string) => {
   return (
     new Date(recordDate.split("T")[0]).getTime() <=
@@ -224,7 +265,7 @@ export const generateProductionReport = async (
               isDateLessOrEqual(wp.date || wp.createdAt, targetDate),
           )
           .reduce((acc, curr) => acc + curr.quantity, 0);
-          
+
         const mes = monthProduction
           .filter(
             (mp) =>
@@ -345,9 +386,14 @@ export const generateProductionReport = async (
             row.getCell(3 + i).numFmt = "0.00";
           }
           if (idx === 2) {
+            const equivalencia140 =
+              getMeasureEquivalent140(measures[i].name);
+
             const baseVal =
-              (granTotalMedidas[i] * (parseFloat(measures[i].name) || 1)) / 1.4;
-            row.getCell(3 + i).value = Math.round(baseVal) || "";
+              granTotalMedidas[i] * equivalencia140;
+
+            row.getCell(3 + i).value =
+              Number(baseVal.toFixed(2)) || "";
           }
         });
         row.eachCell((c) => {
@@ -376,11 +422,20 @@ export const generateProductionReport = async (
         row.getCell(1).value = label;
         if (label === "Horario Normal" || label === "TOTAL") {
           measures.forEach((_, i) => {
-            row.getCell(3 + i).value = isBase140
-              ? Math.round(
-                  (granTotalMedidas[i] * parseFloat(measures[i].name)) / 1.4,
-                )
-              : granTotalMedidas[i];
+            if (isBase140) {
+              const equivalencia140 =
+                getMeasureEquivalent140(measures[i].name);
+
+              row.getCell(3 + i).value = Number(
+                (
+                  granTotalMedidas[i] *
+                  equivalencia140
+                ).toFixed(2),
+              );
+            } else {
+              row.getCell(3 + i).value =
+                granTotalMedidas[i];
+            }
           });
         }
         row.eachCell((c) => {

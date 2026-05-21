@@ -30,17 +30,7 @@ export function ExportPage() {
   const handleExportProduction = async () => {
     try {
       setIsExporting(true);
-
-      // =========================================================
-      // FECHA SELECCIONADA
-      // =========================================================
-
       const current = new Date(selectedDate + "T00:00:00");
-
-      // =========================================================
-      // RANGO SEMANAL
-      // =========================================================
-
       const dayOfWeek = current.getDay();
 
       const diff =
@@ -66,10 +56,6 @@ export function ExportPage() {
         .toISOString()
         .split("T")[0];
 
-      // =========================================================
-      // RANGO MENSUAL
-      // =========================================================
-
       const firstDayMonth = new Date(
         current.getFullYear(),
         current.getMonth(),
@@ -89,10 +75,6 @@ export function ExportPage() {
       const monthEndStr = lastDayMonth
         .toISOString()
         .split("T")[0];
-
-      // =========================================================
-      // RANGO ANUAL
-      // =========================================================
 
       const firstDayYear = new Date(
         current.getFullYear(),
@@ -114,121 +96,83 @@ export function ExportPage() {
         .toISOString()
         .split("T")[0];
 
-      // =========================================================
-      // CONSULTAS
-      // =========================================================
-
       const [
         products,
         measures,
-
-        // PRODUCCION
         dayData,
         weekData,
         monthData,
         yearData,
-
-        // RECHAZOS
         dayReject,
         weekReject,
-
-        // OBSERVACIONES
       ] = await Promise.all([
-        // PRODUCTOS
         getProducts(),
-
-        // MEDIDAS
         getMeasures(),
 
-        // PRODUCCION DIA
         getDailyProduction(
           selectedDate,
           selectedDate
         ),
 
-        // PRODUCCION SEMANA
         getDailyProduction(
           startDateStr,
           endDateStr
         ),
 
-        // PRODUCCION MES
         getDailyProduction(
           monthStartStr,
           monthEndStr
         ),
 
-        // PRODUCCION AÑO
         getDailyProduction(
           yearStartStr,
           yearEndStr
         ),
 
-        // RECHAZOS DIA
         getRejectProducts(
           selectedDate,
           selectedDate
         ),
 
-        // RECHAZOS SEMANA
         getRejectProducts(
           startDateStr,
           endDateStr
         ),
 
-        // OBSERVACIONE
       ]);
-
-      // =========================================================
-      // OBSERVACIONES
-      // =========================================================
-
-      // =========================================================
-      // OBSERVACIONES
-      // =========================================================
 
       let observations = "";
 
       if (Array.isArray(dayData?.data)) {
-        observations = dayData.data
-          .map(
-            (item: any) =>
-              item.observation ||
-              item.observations ||
-              item.description ||
-              ""
-          )
-          .filter(Boolean)
-          .join("\n");
+        const observationRecord = dayData.data.find(
+          (item: any) => {
+            const itemDate = (
+              item.date || ""
+            ).split("T")[0];
+
+            return itemDate === selectedDate;
+          }
+        );
+
+        observations =
+          observationRecord?.observation || "";
       }
-      // =========================================================
-      // DATA PARA EL EXCEL
-      // =========================================================
 
       const dataParaReporte = [
         {
           targetDate: selectedDate,
-
-          // PRODUCCION DIA
           dayProduction:
             dayData?.data || [],
-
-          // PRODUCCION SEMANA
           weekProduction:
             weekData?.data || [],
-
           monthProduction:
             monthData?.data || [],
-
           yearProduction:
             yearData?.data || [],
-
           dayRejects:
             dayReject || [],
-
           weekRejects:
             weekReject || [],
-
           observations,
         },
       ];
