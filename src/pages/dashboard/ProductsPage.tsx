@@ -285,11 +285,10 @@ export function ProductsPage() {
                         </td>
                         <td className="px-6 py-4">
                           <span
-                            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold w-fit border ${
-                              isActive
+                            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold w-fit border ${isActive
                                 ? 'bg-green-500/10 text-green-600 border-green-500/20'
                                 : 'bg-red-500/10 text-red-600 border-red-500/20'
-                            }`}
+                              }`}
                           >
                             <Activity size={12} />
                             {isActive ? 'Activo' : 'Inactivo'}
@@ -375,9 +374,9 @@ export function ProductsPage() {
               <label className="text-xs font-bold uppercase text-muted-foreground ml-1">
                 Categoría
               </label>
-              <input
-                type="text"
-                className="input h-11"
+
+              <select
+                className="input h-11 font-bold"
                 value={formData.category}
                 onChange={e =>
                   setFormData({
@@ -386,7 +385,20 @@ export function ProductsPage() {
                   })
                 }
                 required
-              />
+              >
+                <option value="">
+                  Selecciona una categoría
+                </option>
+                <option value="Normal">
+                  Normal
+                </option>
+                <option value="Semi-Lujo">
+                  Semi-Lujo
+                </option>
+                <option value="Lujo">
+                  Lujo
+                </option>
+              </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">

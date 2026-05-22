@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { loginUser } from '@/api/userService';
 
-export type Role = 'admin' | 'master' | 'empleado';
+export type Role = 'admin' | 'master' | 'employed';
 
 export interface User {
   email: string;

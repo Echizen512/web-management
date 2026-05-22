@@ -27,6 +27,19 @@ export function ExportPage() {
     new Date().toISOString().split("T")[0]
   );
 
+  const formatLocalDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, "0");
+
+  const day = String(
+    date.getDate()
+  ).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
   const handleExportProduction = async () => {
     try {
       setIsExporting(true);
@@ -48,13 +61,11 @@ export function ExportPage() {
         )
       );
 
-      const startDateStr = monday
-        .toISOString()
-        .split("T")[0];
+const startDateStr =
+  formatLocalDate(monday);
 
-      const endDateStr = sunday
-        .toISOString()
-        .split("T")[0];
+const endDateStr =
+  formatLocalDate(sunday);
 
       const firstDayMonth = new Date(
         current.getFullYear(),
@@ -68,13 +79,11 @@ export function ExportPage() {
         0
       );
 
-      const monthStartStr = firstDayMonth
-        .toISOString()
-        .split("T")[0];
+const monthStartStr =
+  formatLocalDate(firstDayMonth);
 
-      const monthEndStr = lastDayMonth
-        .toISOString()
-        .split("T")[0];
+const monthEndStr =
+  formatLocalDate(lastDayMonth);
 
       const firstDayYear = new Date(
         current.getFullYear(),
@@ -88,13 +97,11 @@ export function ExportPage() {
         31
       );
 
-      const yearStartStr = firstDayYear
-        .toISOString()
-        .split("T")[0];
+const yearStartStr =
+  formatLocalDate(firstDayYear);
 
-      const yearEndStr = lastDayYear
-        .toISOString()
-        .split("T")[0];
+const yearEndStr =
+  formatLocalDate(lastDayYear);
 
       const [
         products,

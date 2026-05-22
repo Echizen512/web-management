@@ -5,7 +5,6 @@ import { LogOut, Menu, X, Moon, Sun, LayoutDashboard, Users, Package, Download, 
 import { UsersPage } from './dashboard/UsersPage'
 import { ProductsPage } from './dashboard/ProductsPage'
 import { ExportPage } from './dashboard/ExportPage'
-import { QueriesPage } from './dashboard/QueriesPage'
 import { ChartsPage } from './dashboard/ChartsPage'
 import { LogsPage } from './dashboard/LogsPage'
 import { MeasuresPage } from './dashboard/MeasurePage'
@@ -32,8 +31,7 @@ export function Dashboard() {
       baseItems.push({ id: 'export', label: 'Exportar', icon: Download })
     }
 
-    if (user?.role === 'empleado') {
-      baseItems.push({ id: 'queries', label: 'Consultas', icon: Search })
+    if (user?.role === 'employed') {
       baseItems.push({ id: 'export', label: 'Exportar', icon: Download })
     }
 
@@ -57,8 +55,6 @@ export function Dashboard() {
         return <ProductsPage />
       case 'export':
         return <ExportPage />
-      case 'queries':
-        return <QueriesPage />
       case 'charts':
         return <ChartsPage />
       case 'logs':
@@ -170,7 +166,7 @@ function HomePage() {
           <h3 className="font-semibold text-foreground mb-2">Perfil: {user?.role}</h3>
           <p className="text-sm text-muted-foreground">
             {user?.role === 'admin' && 'Tienes acceso completo para gestionar usuarios y productos.'}
-            {user?.role === 'empleado' && 'Puedes consultar datos y generar reportes.'}
+            {user?.role === 'employed' && 'Puedes consultar datos y generar reportes.'}
             {user?.role === 'master' && 'Tienes acceso total incluyendo gráficas y bitácora.'}
           </p>
         </div>

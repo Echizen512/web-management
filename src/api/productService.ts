@@ -28,7 +28,6 @@ export const getProducts = async (): Promise<Product[]> => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || "Error al obtener productos");
     
-    // Ajustado para devolver la lista de productos
     return data.products || [];
   } catch (err: any) {
     console.error("API Error (getProducts):", err.message);
@@ -75,7 +74,7 @@ export const createProduct = async (productData: Omit<Product, "productID">) => 
 export const updateProduct = async (productID: number, productData: Partial<Product>) => {
   try {
     const response = await fetch(getUrl(`product/${productID}`), {
-      method: "PUT", // Manteniendo PUT según tu lógica original
+      method: "PUT", 
       headers: JSON_HEADERS,
       body: JSON.stringify(productData),
       credentials: "include",

@@ -4,7 +4,7 @@ export interface AuthResponse {
     id: string;
     name: string;
     email: string;
-    role: 'master' | 'admin' | 'empleado';
+    role: 'master' | 'admin' | 'employed';
   };
 }
 

@@ -41,7 +41,7 @@ export function UsersPage() {
   const [formData, setFormData] = useState({
     email: '',
     name: '',
-    role: 'empleado',
+    role: 'employed',
     password: ''
   })
 
