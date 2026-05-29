@@ -67,19 +67,34 @@ const getMonthLabel = (date: string) =>
 
 interface ExportDailyProductionReportsProps {
   dailyData: DailyProduction[];
-
   yearlyData: DailyProduction[];
-
   products: Product[];
-
   measures: Measure[];
-
   selectedDate: string;
 }
 
-/* =========================================
-   ESTILOS EXCEL
-========================================= */
+const formatDate = (
+  date: string
+) => {
+
+  const d =
+    new Date(date);
+
+  const day =
+    String(
+      d.getDate()
+    ).padStart(2, "0");
+
+  const month =
+    String(
+      d.getMonth() + 1
+    ).padStart(2, "0");
+
+  const year =
+    d.getFullYear();
+
+  return `${day}/${month}/${year}`;
+};
 
 const HEADER_FILL = "FF1E293B";
 const HEADER_TEXT = "FFFFFFFF";
@@ -308,52 +323,52 @@ export const exportDailyProductionReports =
        PRODUCCION DEL DIA
     ========================================= */
 
-   const productTotals: Record<string, number> = {};
+    const productTotals: Record<string, number> = {};
 
-/* =========================================
-   FILTRAR SOLO LA FECHA SELECCIONADA
-========================================= */
+    /* =========================================
+       FILTRAR SOLO LA FECHA SELECCIONADA
+    ========================================= */
 
-const filteredDailyData =
-  dailyData.filter((item) => {
+    const filteredDailyData =
+      dailyData.filter((item) => {
 
-    const itemDate =
-      item.date.split("T")[0];
+        const itemDate =
+          item.date.split("T")[0];
 
-    return (
-      itemDate === selectedDate
-    );
-  });
+        return (
+          itemDate === selectedDate
+        );
+      });
 
-  console.log({
-  selectedDate,
-  dailyData,
-  filteredDailyData,
-});
+    console.log({
+      selectedDate,
+      dailyData,
+      filteredDailyData,
+    });
 
-/* =========================================
-   ACUMULAR SOLO PRODUCCION DEL DIA
-========================================= */
+    /* =========================================
+       ACUMULAR SOLO PRODUCCION DEL DIA
+    ========================================= */
 
-filteredDailyData.forEach((item) => {
+    filteredDailyData.forEach((item) => {
 
-  const productName =
-    products.find(
-      (p) =>
-        p.productID ===
-        item.productID
-    )?.name || "N/A";
+      const productName =
+        products.find(
+          (p) =>
+            p.productID ===
+            item.productID
+        )?.name || "N/A";
 
-  productTotals[
-    productName
-  ] =
-    (
       productTotals[
         productName
-      ] || 0
-    ) + Number(item.quantity);
+      ] =
+        (
+          productTotals[
+          productName
+          ] || 0
+        ) + Number(item.quantity);
 
-});
+    });
 
     /* =========================================
        PIE CHART
@@ -441,9 +456,9 @@ filteredDailyData.forEach((item) => {
                             getMonthLabel(
                               item.date
                             ) ===
-                              month &&
+                            month &&
                             item.measureID ===
-                              measure.measureID
+                            measure.measureID
                         )
                         .reduce(
                           (
@@ -461,14 +476,14 @@ filteredDailyData.forEach((item) => {
 
                 borderColor:
                   COLORS[
-                    index %
-                      COLORS.length
+                  index %
+                  COLORS.length
                   ],
 
                 backgroundColor:
                   COLORS[
-                    index %
-                      COLORS.length
+                  index %
+                  COLORS.length
                   ],
 
                 tension: 0.4,
@@ -534,9 +549,9 @@ filteredDailyData.forEach((item) => {
                             getMonthLabel(
                               item.date
                             ) ===
-                              month &&
+                            month &&
                             item.productID ===
-                              product.productID
+                            product.productID
                         )
                         .reduce(
                           (
@@ -554,14 +569,14 @@ filteredDailyData.forEach((item) => {
 
                 borderColor:
                   COLORS[
-                    index %
-                      COLORS.length
+                  index %
+                  COLORS.length
                   ],
 
                 backgroundColor:
                   COLORS[
-                    index %
-                      COLORS.length
+                  index %
+                  COLORS.length
                   ],
 
                 tension: 0.4,
@@ -607,7 +622,7 @@ filteredDailyData.forEach((item) => {
     createTitle(
       sheet1,
       "PRODUCCIÓN DIARIA",
-      `Fecha seleccionada: ${selectedDate}`
+      `Fecha seleccionada: ${formatDate(selectedDate)}`
     );
 
     sheet1.columns = [
@@ -652,7 +667,26 @@ filteredDailyData.forEach((item) => {
       }
     );
 
-    
+    const dailyTotal =
+      Object.values(
+        productTotals
+      ).reduce(
+        (acc, curr) =>
+          acc + curr,
+        0
+      );
+
+    const totalRow1 =
+      sheet1.addRow([
+        "TOTAL",
+        dailyTotal,
+      ]);
+
+    totalRow1.height = 28;
+    totalRow1.eachCell((cell) => {
+      cell.style =
+        createHeaderStyle();
+    });
 
     const pieImageId =
       workbook.addImage({
@@ -749,7 +783,7 @@ filteredDailyData.forEach((item) => {
                       item.date
                     ) === month &&
                     item.measureID ===
-                      measure.measureID
+                    measure.measureID
                 )
                 .reduce(
                   (
@@ -782,9 +816,45 @@ filteredDailyData.forEach((item) => {
       }
     );
 
-    /* =========================================
-       HOJA 3
-    ========================================= */
+    const measuresTotals =
+      measures.map(
+        (measure) => {
+
+          return yearlyData
+            .filter(
+              (item) =>
+                item.measureID ===
+                measure.measureID
+            )
+            .reduce(
+              (
+                acc,
+                curr
+              ) =>
+                acc +
+                Number(
+                  curr.quantity
+                ),
+              0
+            );
+        }
+      );
+
+    const totalMeasuresRow =
+      sheet2.addRow([
+        "TOTAL",
+        ...measuresTotals,
+      ]);
+    totalMeasuresRow.height =
+      28;
+    totalMeasuresRow.eachCell(
+      (cell) => {
+        cell.style =
+          createHeaderStyle();
+      }
+    );
+
+
 
     const sheet3 =
       workbook.addWorksheet(
@@ -856,7 +926,7 @@ filteredDailyData.forEach((item) => {
                       item.date
                     ) === month &&
                     item.productID ===
-                      product.productID
+                    product.productID
                 )
                 .reduce(
                   (
@@ -886,6 +956,44 @@ filteredDailyData.forEach((item) => {
               monthIndex % 2 === 0
             );
         });
+      }
+    );
+
+    const productsTotals =
+      products.map(
+        (product) => {
+
+          return yearlyData
+            .filter(
+              (item) =>
+                item.productID ===
+                product.productID
+            )
+            .reduce(
+              (
+                acc,
+                curr
+              ) =>
+                acc +
+                Number(
+                  curr.quantity
+                ),
+              0
+            );
+        }
+      );
+
+    const totalProductsRow =
+      sheet3.addRow([
+        "TOTAL",
+        ...productsTotals,
+      ]);
+    totalProductsRow.height =
+      28;
+    totalProductsRow.eachCell(
+      (cell) => {
+        cell.style =
+          createHeaderStyle();
       }
     );
 
