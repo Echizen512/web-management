@@ -77,21 +77,11 @@ const formatDate = (
   date: string
 ) => {
 
-  const d =
-    new Date(date);
-
-  const day =
-    String(
-      d.getDate()
-    ).padStart(2, "0");
-
-  const month =
-    String(
-      d.getMonth() + 1
-    ).padStart(2, "0");
-
-  const year =
-    d.getFullYear();
+  const [
+    year,
+    month,
+    day,
+  ] = date.split("-");
 
   return `${day}/${month}/${year}`;
 };
@@ -373,57 +363,90 @@ export const exportDailyProductionReports =
     /* =========================================
        PIE CHART
     ========================================= */
+const pieValues =
+  Object.values(
+    productTotals
+  );
 
-    const pieImage =
-      await createChartImage({
+const pieImage =
+  await createChartImage({
 
-        type: "pie",
+    type: "pie",
 
-        data: {
+    data: {
 
-          labels:
-            Object.keys(
-              productTotals
+      labels:
+        Object.keys(
+          productTotals
+        ),
+
+      datasets: [
+        {
+          data:
+            pieValues,
+
+          backgroundColor:
+            COLORS.slice(
+              0,
+              pieValues.length
             ),
 
-          datasets: [
-            {
-              data:
-                Object.values(
-                  productTotals
-                ),
+          borderWidth: 0,
 
-              backgroundColor:
-                COLORS,
+          borderColor:
+            "transparent",
 
-              borderColor:
-                "#FFFFFF",
+          hoverBorderWidth: 0,
 
-              borderWidth: 3,
-            },
-          ],
+          hoverBorderColor:
+            "transparent",
+
+          spacing: 0,
+
+          offset: 0,
+
+          hoverOffset: 0,
+
+          radius: "100%",
         },
+      ],
+    },
 
-        options: {
+    options: {
 
-          responsive: false,
+      responsive: false,
 
-          plugins: {
+      animation: false,
 
-            legend: {
-              position: "bottom",
-              labels: {
-                color: "#111827",
-                font: {
-                  size: 12,
-                  weight: "bold",
-                },
-              },
+      events: [],
+
+      layout: {
+        padding: 0,
+      },
+
+      plugins: {
+
+        legend: {
+
+          position: "bottom",
+
+          labels: {
+
+            color: "#111827",
+
+            font: {
+              size: 12,
+              weight: "bold",
             },
           },
         },
-      });
 
+        tooltip: {
+          enabled: true,
+        },
+      },
+    },
+  });
     /* =========================================
        GRAFICO MEDIDAS
     ========================================= */
