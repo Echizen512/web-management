@@ -209,6 +209,10 @@ export const generateProductionReport = async (
     const granTotalMedidas = new Array(measures.length).fill(0);
     const subTotalesCat: Record<string, number> = {};
 
+    const validProductIds = new Set(
+      products.map((p) => p.productID)
+    );
+
     categorias.forEach((cat) => {
       const productsInCat = products.filter((p) => p.category === cat);
       if (productsInCat.length === 0) return;
@@ -313,18 +317,53 @@ export const generateProductionReport = async (
       subRow.getCell(colTotal).value = totalCatDia;
 
       const totalSemCat = weekProduction
-        .filter((wp) => productsInCat.some((p) => p.productID === wp.productID))
-        .reduce((acc, curr) => acc + curr.quantity, 0);
+        .filter(
+          (wp) =>
+            productsInCat.some(
+              (p) => p.productID === wp.productID
+            ) &&
+            isDateLessOrEqual(
+              wp.date || wp.createdAt,
+              targetDate
+            ),
+        )
+        .reduce(
+          (acc, curr) => acc + curr.quantity,
+          0,
+        );
 
       const totalMesCat = monthProduction
-        .filter((mp) => productsInCat.some((p) => p.productID === mp.productID))
-        .reduce((acc, curr) => acc + curr.quantity, 0);
+        .filter(
+          (mp) =>
+            productsInCat.some(
+              (p) => p.productID === mp.productID
+            ) &&
+            isDateLessOrEqual(
+              mp.date || mp.createdAt,
+              targetDate
+            ),
+        )
+        .reduce(
+          (acc, curr) => acc + curr.quantity,
+          0,
+        );
 
       const totalAnualCat = yearProduction
-        .filter((yp: any) =>
-          productsInCat.some((p) => p.productID === yp.productID),
+        .filter(
+          (yp: any) =>
+            productsInCat.some(
+              (p) => p.productID === yp.productID
+            ) &&
+            isDateLessOrEqual(
+              yp.date || yp.createdAt,
+              targetDate
+            ),
         )
-        .reduce((acc: number, curr: any) => acc + Number(curr.quantity || 0), 0);
+        .reduce(
+          (acc: number, curr: any) =>
+            acc + Number(curr.quantity || 0),
+          0,
+        );
 
       subRow.getCell(colAcumSem).value = totalSemCat > 0 ? totalSemCat : "";
 
@@ -362,15 +401,33 @@ export const generateProductionReport = async (
       currentRow += 2;
     });
 
-    const granTotalSemanal = weekProduction.reduce(
-      (acc, curr) => acc + curr.quantity,
-      0,
-    );
+    const granTotalSemanal = weekProduction
+      .filter(
+        (item) =>
+          validProductIds.has(item.productID) &&
+          isDateLessOrEqual(
+            item.date || item.createdAt,
+            targetDate
+          ),
+      )
+      .reduce(
+        (acc, curr) => acc + curr.quantity,
+        0,
+      );
 
-    const granTotalMensual = monthProduction.reduce(
-      (acc, curr) => acc + curr.quantity,
-      0,
-    );
+    const granTotalMensual = monthProduction
+      .filter(
+        (item) =>
+          validProductIds.has(item.productID) &&
+          isDateLessOrEqual(
+            item.date || item.createdAt,
+            targetDate
+          ),
+      )
+      .reduce(
+        (acc, curr) => acc + curr.quantity,
+        0,
+      );
 
     const buildSummary = (start: number) => {
       const labels = ["Totales por medidas", "% de Medidas", "Base 1.40"];
@@ -567,13 +624,13 @@ export const generateProductionReport = async (
       [
         "Produccion Real",
         granTotalDia,
-        weekProduction.reduce((a, b) => a + b.quantity, 0),
+        granTotalSemanal
       ],
       ["Rechazados", totalDayRejects, totalWeekRejects],
       [
         "Produccion Bruta",
         granTotalDia + totalDayRejects,
-        weekProduction.reduce((a, b) => a + b.quantity, 0) + totalWeekRejects,
+        granTotalSemanal + totalWeekRejects,
       ],
     ];
 
