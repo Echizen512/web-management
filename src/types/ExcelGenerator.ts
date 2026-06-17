@@ -22,6 +22,20 @@ interface DayData {
   observations?: string;
 }
 
+const normalizeDate = (value?: string) =>
+  new Date(
+    `${(value || "").split("T")[0]}T00:00:00`
+  );
+
+const getRecordDate = (item: any) =>
+  item.date || item.createdAt;
+
+const sumQuantity = (items: any[]) =>
+  items.reduce(
+    (acc, curr) => acc + Number(curr.quantity || 0),
+    0
+  );
+
 const getMeasureEquivalent140 = (
   measureName: string,
 ): number => {
@@ -158,6 +172,39 @@ const realYearProduction =
       d <= target
     );
   });
+
+const buildProductAccumulator = (
+  records: any[]
+) => {
+  const map = new Map<number, number>();
+
+  records.forEach((item) => {
+    const productID = Number(item.productID);
+
+    map.set(
+      productID,
+      (map.get(productID) || 0) +
+        Number(item.quantity || 0)
+    );
+  });
+
+  return map;
+};
+
+const weekTotals =
+  buildProductAccumulator(
+    realWeekProduction
+  );
+
+const monthTotals =
+  buildProductAccumulator(
+    realMonthProduction
+  );
+
+const yearTotals =
+  buildProductAccumulator(
+    realYearProduction
+  );
 
     const strictDayProduction = dayProduction.filter((dp) => {
       const recordDate = dp.date || dp.createdAt;
@@ -333,33 +380,14 @@ const realYearProduction =
         }
         row.getCell(colTipo).border = borderStyle;
 
-const sem = realWeekProduction
-  .filter(
-    (wp) => wp.productID === prod.productID,
-  )
-  .reduce(
-    (acc, curr) => acc + curr.quantity,
-    0,
-  );
+const sem =
+  weekTotals.get(prod.productID) || 0;
 
-        const mes = realMonthProduction
-          .filter(
-            (mp) =>
-              mp.productID === prod.productID &&
-              isDateLessOrEqual(mp.date || mp.createdAt, targetDate),
-          )
-          .reduce((acc, curr) => acc + curr.quantity, 0);
+const mes =
+  monthTotals.get(prod.productID) || 0;
 
-        const anual = realYearProduction
-          .filter(
-            (yp: any) =>
-              yp.productID === prod.productID &&
-              isDateLessOrEqual(yp.date || yp.createdAt, targetDate),
-          )
-          .reduce(
-            (acc: number, curr: any) => acc + Number(curr.quantity || 0),
-            0,
-          );
+const anual =
+  yearTotals.get(prod.productID) || 0;
 
         row.getCell(colAcumSem).value = sem > 0 ? sem : "";
         row.getCell(colAcumSem).border = borderStyle;
@@ -388,60 +416,48 @@ const sem = realWeekProduction
 
       subRow.getCell(colTotal).value = totalCatDia;
 
-      const totalSemCat = realWeekProduction
-        .filter(
-          (wp) =>
-            productsInCat.some(
-              (p) => p.productID === wp.productID
-            ) &&
-            isDateLessOrEqual(
-              wp.date || wp.createdAt,
-              targetDate
-            ),
-        )
-        .reduce(
-          (acc, curr) => acc + curr.quantity,
-          0,
-        );
+const categoryProductIds =
+  new Set(
+    productsInCat.map(
+      (p) => p.productID
+    )
+  );
 
-      const totalMesCat = realMonthProduction
-        .filter(
-          (mp) =>
-            productsInCat.some(
-              (p) => p.productID === mp.productID
-            ) &&
-            isDateLessOrEqual(
-              mp.date || mp.createdAt,
-              targetDate
-            ),
-        )
-        .reduce(
-          (acc, curr) => acc + curr.quantity,
-          0,
-        );
+const totalSemCat = realWeekProduction
+  .filter((wp) =>
+    categoryProductIds.has(wp.productID)
+  )
+  .reduce(
+    (acc, curr) => acc + Number(curr.quantity || 0),
+    0
+  );
 
-      const totalAnualCat = realYearProduction
-        .filter(
-          (yp: any) =>
-            productsInCat.some(
-              (p) => p.productID === yp.productID
-            ) &&
-            isDateLessOrEqual(
-              yp.date || yp.createdAt,
-              targetDate
-            ),
-        )
-        .reduce(
-          (acc: number, curr: any) =>
-            acc + Number(curr.quantity || 0),
-          0,
-        );
+const totalMesCat = realMonthProduction
+  .filter((mp) =>
+    categoryProductIds.has(mp.productID)
+  )
+  .reduce(
+    (acc, curr) => acc + Number(curr.quantity || 0),
+    0
+  );
 
-      subRow.getCell(colAcumSem).value = totalSemCat > 0 ? totalSemCat : "";
+const totalAnualCat = realYearProduction
+  .filter((yp) =>
+    categoryProductIds.has(yp.productID)
+  )
+  .reduce(
+    (acc, curr) => acc + Number(curr.quantity || 0),
+    0
+  );
 
-      subRow.getCell(colAcumMes).value = totalMesCat > 0 ? totalMesCat : "";
+  subRow.getCell(colAcumSem).value =
+  totalSemCat || null;
 
-      subRow.getCell(colAcumAnual).value = totalAnualCat > 0 ? totalAnualCat : "";
+subRow.getCell(colAcumMes).value =
+  totalMesCat || null;
+
+subRow.getCell(colAcumAnual).value =
+  totalAnualCat || null;
 
       subTotalesCat[cat] = totalCatDia;
 
@@ -473,33 +489,24 @@ const sem = realWeekProduction
       currentRow += 2;
     });
 
-    const granTotalSemanal = realWeekProduction
-      .filter(
-        (item) =>
-          validProductIds.has(item.productID) &&
-          isDateLessOrEqual(
-            item.date || item.createdAt,
-            targetDate
-          ),
-      )
-      .reduce(
-        (acc, curr) => acc + curr.quantity,
-        0,
-      );
+   const granTotalSemanal = sumQuantity(
+  realWeekProduction.filter(item =>
+    validProductIds.has(item.productID)
+  )
+);
 
-    const granTotalMensual = realMonthProduction
-      .filter(
-        (item) =>
-          validProductIds.has(item.productID) &&
-          isDateLessOrEqual(
-            item.date || item.createdAt,
-            targetDate
-          ),
-      )
-      .reduce(
-        (acc, curr) => acc + curr.quantity,
-        0,
-      );
+const granTotalMensual = sumQuantity(
+  realMonthProduction.filter(item =>
+    validProductIds.has(item.productID)
+  )
+);
+
+const granTotalAnual = sumQuantity(
+  realYearProduction.filter(item =>
+    validProductIds.has(item.productID)
+  )
+);
+
 
     const buildSummary = (start: number) => {
       const labels = ["Totales por medidas", "% de Medidas", "Base 1.40"];
