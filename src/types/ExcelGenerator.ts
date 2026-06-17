@@ -87,6 +87,78 @@ export const generateProductionReport = async (
       observations,
     } = day;
     const exactTargetDate = targetDate.split("T")[0];
+
+    const target = new Date(exactTargetDate + "T00:00:00");
+
+    const dayOfWeek =
+      target.getDay() === 0
+        ? 7
+        : target.getDay();
+
+    const monday = new Date(target);
+    monday.setDate(
+      target.getDate() - dayOfWeek + 1
+    );
+
+    const firstDayMonth = new Date(
+      target.getFullYear(),
+      target.getMonth(),
+      1
+    );
+
+    const firstDayYear = new Date(
+      target.getFullYear(),
+      0,
+      1
+    );
+
+    const normalizeDate = (
+  value: string
+) =>
+  new Date(
+    (value || "")
+      .split("T")[0] + "T00:00:00"
+  );
+
+  const realWeekProduction =
+  weekProduction.filter((item) => {
+
+    const d = normalizeDate(
+      item.date || item.createdAt
+    );
+
+    return (
+      d >= monday &&
+      d <= target
+    );
+  });
+
+const realMonthProduction =
+  monthProduction.filter((item) => {
+
+    const d = normalizeDate(
+      item.date || item.createdAt
+    );
+
+    return (
+      d >= firstDayMonth &&
+      d <= target
+    );
+  });
+
+const realYearProduction =
+  yearProduction.filter((item) => {
+
+    const d = normalizeDate(
+      item.date || item.createdAt
+    );
+
+    return (
+      d >= firstDayYear &&
+      d <= target
+    );
+  });
+
     const strictDayProduction = dayProduction.filter((dp) => {
       const recordDate = dp.date || dp.createdAt;
       if (!recordDate) return false;
@@ -126,7 +198,6 @@ export const generateProductionReport = async (
     const current = new Date(dateObj);
     const diff =
       current.getDate() - current.getDay() + (current.getDay() === 0 ? -6 : 1);
-    const monday = new Date(new Date(current).setDate(diff));
     const sunday = new Date(new Date(monday).setDate(monday.getDate() + 6));
     const rangoSemana = `${monday.getDate()}/${monday.getMonth() + 1}/${monday.getFullYear()} al ${sunday.getDate()}/${sunday.getMonth() + 1}/${sunday.getFullYear()}`;
 
@@ -262,15 +333,16 @@ export const generateProductionReport = async (
         }
         row.getCell(colTipo).border = borderStyle;
 
-        const sem = weekProduction
-          .filter(
-            (wp) =>
-              wp.productID === prod.productID &&
-              isDateLessOrEqual(wp.date || wp.createdAt, targetDate),
-          )
-          .reduce((acc, curr) => acc + curr.quantity, 0);
+const sem = realWeekProduction
+  .filter(
+    (wp) => wp.productID === prod.productID,
+  )
+  .reduce(
+    (acc, curr) => acc + curr.quantity,
+    0,
+  );
 
-        const mes = monthProduction
+        const mes = realMonthProduction
           .filter(
             (mp) =>
               mp.productID === prod.productID &&
@@ -278,7 +350,7 @@ export const generateProductionReport = async (
           )
           .reduce((acc, curr) => acc + curr.quantity, 0);
 
-        const anual = yearProduction
+        const anual = realYearProduction
           .filter(
             (yp: any) =>
               yp.productID === prod.productID &&
@@ -316,7 +388,7 @@ export const generateProductionReport = async (
 
       subRow.getCell(colTotal).value = totalCatDia;
 
-      const totalSemCat = weekProduction
+      const totalSemCat = realWeekProduction
         .filter(
           (wp) =>
             productsInCat.some(
@@ -332,7 +404,7 @@ export const generateProductionReport = async (
           0,
         );
 
-      const totalMesCat = monthProduction
+      const totalMesCat = realMonthProduction
         .filter(
           (mp) =>
             productsInCat.some(
@@ -348,7 +420,7 @@ export const generateProductionReport = async (
           0,
         );
 
-      const totalAnualCat = yearProduction
+      const totalAnualCat = realYearProduction
         .filter(
           (yp: any) =>
             productsInCat.some(
@@ -401,7 +473,7 @@ export const generateProductionReport = async (
       currentRow += 2;
     });
 
-    const granTotalSemanal = weekProduction
+    const granTotalSemanal = realWeekProduction
       .filter(
         (item) =>
           validProductIds.has(item.productID) &&
@@ -415,7 +487,7 @@ export const generateProductionReport = async (
         0,
       );
 
-    const granTotalMensual = monthProduction
+    const granTotalMensual = realMonthProduction
       .filter(
         (item) =>
           validProductIds.has(item.productID) &&
